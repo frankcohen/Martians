@@ -24,6 +24,10 @@
  * look towards each other. When not, they let each other control
  * where they look.
  *
+ * See the images directory for photos and video of the finished project
+ * Software repository is at https://github.com/frankcohen/Martians
+
+
  */
 
 /*
