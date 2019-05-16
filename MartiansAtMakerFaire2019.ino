@@ -1,5 +1,5 @@
 /*
- * Maker Faire 2019 Martians Project
+ * Maker Faire 2019 Martians Project, teaches wireless communication
  *
  * Two light creatures, with animated colors point towards each other,
  * and animate when not close to each other.
@@ -17,11 +17,32 @@
  * fcohen@starlingwatch.com
  * May 16, 2019
  *
+ * Did you ever see Jim Henson's Martian Muppets on Sesame Street?
  * https://www.youtube.com/watch?v=KTc3PsW5ghQ
+ * The Martians inspired me to create a project where two aliens
+ * year for each other. When they are within GPS range they
+ * look towards each other. When not, they let each other control
+ * where they look.
  *
  */
 
-// WS2812B strip, white wire = GND, Red = +5, Middle = data
+/*
+  MartiansAtMakerFaire2019, teaches wireless communication
+  Copyright (C) <year>  <name of author>
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 
 #include <SPI.h>
 #include <nRF24L01.h>
@@ -163,7 +184,7 @@ void runLightShow()
           {
             newshow = false;
           }
-          // Syncopation (when GPS is invalid, one uses the other's compass heading background is red)  
+          // Syncopation (when GPS is invalid, one uses the other's compass heading background is red)
           singleeyenorthflag = true;
           singleeyeotherflag = false;
         }
@@ -173,7 +194,7 @@ void runLightShow()
     // Alternate betweeen RainbowStripeColors and CloudColors
     if ( showstage == 1 )
     {
-      if ( showblob == 0 ) { currentPalette = RainbowStripeColors_p; currentBlending = LINEARBLEND; }      
+      if ( showblob == 0 ) { currentPalette = RainbowStripeColors_p; currentBlending = LINEARBLEND; }
       if ( showblob == 1 ) { currentPalette = CloudColors_p; currentBlending = LINEARBLEND; }
 
       showblob++;
@@ -202,7 +223,7 @@ void runLightShow()
 
     if ( showstage == 1 )
     {
-      startIndex = startIndex + 1; /* motion speed */      
+      startIndex = startIndex + 1; /* motion speed */
       FillLEDsFromPaletteColors( startIndex );
     }
     FastLED.show();
@@ -331,7 +352,7 @@ void timeoutGPSvals()
     {
       latrecvalid = 0;
       latrec = 0;
-    }    
+    }
   }
 
   if ( lngrecvalid != 0 )
@@ -340,7 +361,7 @@ void timeoutGPSvals()
     {
       lngrecvalid = 0;
       lngrec = 0;
-    }    
+    }
   }
 
   if ( latvalid != 0 )
@@ -349,7 +370,7 @@ void timeoutGPSvals()
     {
       latvalid = 0;
       lat = 0;
-    }    
+    }
   }
 
   if ( latvalid != 0 )
@@ -358,9 +379,9 @@ void timeoutGPSvals()
     {
       latvalid = 0;
       lat = 0;
-    }    
+    }
   }
-}    
+}
 
 void fadeout()
 {
@@ -422,11 +443,11 @@ void setup() {
     Serial.println("I am a receiver.");
   }
 
-  radio.startListening();  
+  radio.startListening();
 }
 
 void loop()
-{  
+{
   timeoutGPSvals();
 
   Serial.print( lat );
@@ -466,10 +487,10 @@ void loop()
           doc[ "lng" ] = gps.location.lng();
           lng = gps.location.lng();
           lngvalid = millis();
-        }        
+        }
         rrobin2++;
         if ( rrobin2 > 1 ) rrobin2 = 0;
-      }    
+      }
     }
     else
     {
@@ -487,7 +508,7 @@ void loop()
       if ( rrobin == 2 )
       {
         doc[ "magneticz" ] = event.magnetic.z;
-      }       
+      }
 
       rrobin++;
       if ( rrobin >2 ) rrobin = 0;
@@ -653,7 +674,7 @@ void loop()
 
           rrobin2++;
           if ( rrobin2 > 1 ) rrobin2 = 0;
-        }    
+        }
       }
       else
       {
@@ -671,7 +692,7 @@ void loop()
         if ( rrobin == 2 )
         {
           ackdoc[ "magneticz" ] = event.magnetic.z;
-        }       
+        }
 
         rrobin++;
         if ( rrobin >2 ) rrobin = 0;
