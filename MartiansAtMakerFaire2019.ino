@@ -1,71 +1,68 @@
 /*
- * Maker Faire 2019 Martians Project, teaches wireless communication
- *
- * Two light creatures, with animated colors point towards each other,
- * and animate when not close to each other.
- *
- * Teaches:
- * Wireless communication
- * GPS location tracking
- * Magnatometer (compass) tracking
- * Data Serialization
- * Real-time and multi-tasking software engineering
- * 8-bit processor environments (Arduino)
- * Battery operated environments
- * LED display technology
- *
- * fcohen@starlingwatch.com
- * May 16, 2019
- *
- * Did you ever see Jim Henson's Martian Muppets on Sesame Street?
- * https://www.youtube.com/watch?v=KTc3PsW5ghQ
- * The Martians inspired me to create a project where two aliens
- * year for each other. When they are within GPS range they
- * look towards each other. When not, they let each other control
- * where they look.
- *
- * See the images directory for photos and video of the finished project
- * Software repository is at https://github.com/frankcohen/Martians
+  Martians Project for Maker Faire 2019
 
+  Two light creatures, with animated colors point towards each other,
+  and animate when not close to each other.
 
- */
+  Teaches:
+  Wireless communication
+  GPS location tracking
+  Magnatometer (compass) tracking
+  Data Serialization
+  Real-time and multi-tasking software engineering
+  8-bit processor environments (Arduino)
+  Battery operated and portable environments
+  LED display technology
 
-/*
-  MartiansAtMakerFaire2019, teaches wireless communication
-  Copyright (C) <year>  <name of author>
+  Video of Martian's in action:
+  https://youtu.be/dwj0wr4Axek
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+  Jim Henson’s Muppets work on Sesame Street inspired this project:
+  https://www.youtube.com/watch?v=KTc3PsW5ghQ
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+  I brought the Martians to the Maker Faire, San Mateo, California. May 17 to 19, 2019.
+  http://makerfaire.com
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  Martians is a free GPL open source project. Find all code,
+  wiring, components, and everything else at:
+  https://github.com/frankcohen/Martians
+
+  See Marians Wiring Guide 2019.pdf for wiring instructions.
+
+  Martians uses the following parts:
+  TMRh20/RF24 wireless radios, https://github.com/tmrh20/RF24/
+  Neo7 GPS board, https://www.ebay.com/i/273760042170?chn=ps
+  Magnetometer, https://learn.adafruit.com/lsm303-accelerometer-slash-compass-breakout/coding
+  WS2812b LED strip, http://bit.ly/2W06RPd
+  Arduino Mega
+
+  Software libraries:
+  TinyGPS+
+  Adafruit_Sensor and Adafruit_LSM303_U to read compass and accelerometer
+  ArduinoJson - serialize and deserialize data between Martians
+  FastLED - drives LED display
+
+  Plastic housing found at IKEA. SOLVINDEN solar powered table light, $15
+  https://www.ikea.com/us/en/catalog/products/40422098/
+
+  -Frank Cohen, May 16, 2019
 */
 
 #include <SPI.h>
-#include <nRF24L01.h>
+#include <nRF24L01.h>   // TMRh20/RF24, https://github.com/tmrh20/RF24/
 #include <RF24.h>
 #include <TinyGPS++.h>
 #include <Wire.h>
-#include <Adafruit_Sensor.h>
+#include <Adafruit_Sensor.h>  // Adafruit Sensor and LSM303 compass libraries
 #include <Adafruit_LSM303_U.h>
-#include <ArduinoJson.h>
+#include <ArduinoJson.h>      // AdruinoJson: to serialize messages between martians
 #include "printf.h"
 #include "FastLED.h"    // https://github.com/FastLED/FastLED
 #include <math.h>
 
-// Depends on these librararies:
-// Library: TMRh20/RF24, https://github.com/tmrh20/RF24/
-// Library: Adafruit Sensor and LSM303 compass libraries
-// AdruinoJson: to serialize messages between martians
-
 int radioNumber = 0;    // 0 = Transmitter, 1 = Receiver
+
+// Helper definitions to position the LEDs
 
 // ring 0 0-34
 // ring 1 35-66
@@ -86,6 +83,7 @@ int radioNumber = 0;    // 0 = Transmitter, 1 = Receiver
 int rows[] = {ring0, ring1, ring2, ring3, ring4};
 int rowscount[] = {ring0count, ring1count, ring2count, ring3count, ring4count};
 
+// Helper to calculate headings
 const float Pi = 3.14159;
 
 static const uint32_t GPSBaud = 9600;
@@ -100,6 +98,8 @@ static const uint32_t GPSBaud = 9600;
 CRGB leds[NUM_LEDS];
 CRGBPalette16 currentPalette;
 TBlendType    currentBlending;
+
+// Storage for positions and headings
 
 double magxrec = 0;
 double magyrec = 0;
@@ -123,7 +123,8 @@ TinyGPSPlus gps;
 
 RF24 radio(7, 8); // CE, CSN
 
-const uint64_t pipes[2] = { 0xDBCDABCD71LL, 0xD44d52687CLL };  // Radio pipe addresses for the 2 nodes to communicate.
+// Radio pipe addresses for the 2 nodes to communicate.
+const uint64_t pipes[2] = { 0xDBCDABCD71LL, 0xD44d52687CLL };
 
 long messageCounter = 0;
 int rrobin = 0;
@@ -133,7 +134,7 @@ int rrobin3 = 0;
 #define timeoutval 6000
 
 long showtime = millis();
-#define showduration 10000
+#define showduration 15000
 int showstage = 0;
 boolean newshow = false;
 int showblob = 0;
@@ -144,10 +145,10 @@ boolean singleeyenorthflag = false;
 
 void runLightShow()
 {
-  // Change to new show
-
   if ( showtime + showduration < millis() )
   {
+    // Change to new show
+
     showtime = millis();
     showstage++;
     if ( showstage > 1 ) showstage = 0;
@@ -269,9 +270,6 @@ void SingleEyeNorth( float y, float x, int row)
   leds[ rows[ row ] + lightnum - 1 ].maximizeBrightness();
   leds[ rows[ row ] + lightnum ].maximizeBrightness();
   leds[ rows[ row ] + lightnum + 1 ].maximizeBrightness();
-
-
-
 }
 
 void SingleEyeTowardsOther( double lat1, double lon1, double lat2, double lon2, int row)
@@ -334,7 +332,7 @@ static void printFloat(float val, bool valid, int len, int prec)
   smartDelay(10);
 }
 
-/* Delay and keeps the GPS feeding data */
+/* Delay and keeps the GPS feeding data and the light show animating */
 
 static void smartDelay(unsigned long ms)
 {
@@ -347,6 +345,8 @@ static void smartDelay(unsigned long ms)
 
   } while (millis() - start < ms);
 }
+
+// Remove the GPS and compass settings that have timed-out
 
 void timeoutGPSvals()
 {
@@ -385,26 +385,6 @@ void timeoutGPSvals()
       lat = 0;
     }
   }
-}
-
-void fadeout()
-{
-    for( int i = BRIGHTNESS; i > 0; i=i-8)
-    {
-      FastLED.setBrightness( i );
-      FastLED.show();
-      delay(100);
-    }
-}
-
-void fadein()
-{
-    for( int i = 0; i < BRIGHTNESS; i=i+8)
-    {
-      FastLED.setBrightness( i );
-      FastLED.show();
-      delay(100);
-    }
 }
 
 void setup() {
@@ -454,6 +434,7 @@ void loop()
 {
   timeoutGPSvals();
 
+  /* for debugging
   Serial.print( lat );
   Serial.print( " " );
   Serial.print( lng );
@@ -468,6 +449,7 @@ void loop()
   Serial.print( " " );
   Serial.print( magzrec );
   Serial.println( " " );
+  */
 
   if ( radioNumber == 0 )
   {
