@@ -2,6 +2,8 @@
 
 Martians is a fun project teaching how to make wireless animated communication devices.
 
+Video of Martian's in action. Click the image to view the video:
+
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/dwj0wr4Axek/0.jpg)](https://www.youtube.com/watch?v=dwj0wr4Axek)
 
 fcohen@starlingwatch.com
