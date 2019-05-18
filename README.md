@@ -2,6 +2,8 @@
 
 Martians is a fun project teaching how to make wireless animated communication devices.
 
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/dwj0wr4Axek/0.jpg)](https://www.youtube.com/watch?v=dwj0wr4Axek)
+
 fcohen@starlingwatch.com
 Martians is a free GPL open source project.
 See LICENSE for details.
@@ -26,14 +28,14 @@ Instructions:
 7) Repeat 5-6 for the second Martian
 8) Have fun with your Martians
 
-Video of Martian's in action:
-https://youtu.be/dwj0wr4Axek
-
 Jim Henson’s Muppets work on Sesame Street inspired this project:
 https://www.youtube.com/watch?v=KTc3PsW5ghQ
 
 I brought the Martians to the Maker Faire, San Mateo, California. May 17 to 19, 2019.
 http://makerfaire.com
+
+Video of Martian's in action:
+https://youtu.be/dwj0wr4Axek
 
 Martians is a free GPL open source project. Find all code,
 wiring, components, and everything else at:
